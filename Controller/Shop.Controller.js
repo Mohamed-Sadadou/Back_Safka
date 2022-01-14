@@ -19,8 +19,8 @@ const CodifieIdProduit = (ref) => {
 //************************** SCRUD PRODUCT **************************************************************************************************/
 //***************************** Ajout produit ******************************************/
 module.exports.AjoutProduit = async (req, res) => {
-    console.log('on affiche le req  ', req.body);
-    console.log('on affiche le req  ', req.files);
+    //console.log('on affiche le req  ', req.body);
+    //console.log('on affiche le req  ', req.files);
     Links = [];
     await req.files.forEach(function (y) {
         Links.push(y.path);
