@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const UserRole = require("./RoleUser");
 const { isEmail } = require('validator');
-const bcrypt = require('bcrypt');
 
 const ShopSchema = new mongoose.Schema(
     {
