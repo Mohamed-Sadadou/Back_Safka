@@ -17,7 +17,7 @@ const appDir = dirname(require.main.filename);
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
       console.log('on affiche le req  ', req.body[0]);
-      const { Ref_Shop } = req.body[0].Ref_Shop
+      const { Ref_Shop } = req.body.Ref_Shop
       const path = `./uploads/gallery/Produits/${Ref_Shop}`
       fs.mkdirSync(path, { recursive: true })
       cb(null, path)
