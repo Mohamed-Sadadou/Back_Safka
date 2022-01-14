@@ -4,6 +4,7 @@ const Chek = require('../middleware/auth.middleware');
 const multer = require('multer');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
+const fs = require("fs");
 //const TableauDeBord=require('../routes/TableauDeBord.routes');
 const ShopRoutes = require('./ShopRoutes');
 //cc 
