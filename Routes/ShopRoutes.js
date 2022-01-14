@@ -16,8 +16,8 @@ const appDir = dirname(require.main.filename);
     //C:/Users/Sadadou Mohamed/Desktop/MASS/Safka/Back_Safka/upload
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-      console.log('on affiche le req  ', req.body[0]);
-      const { Ref_Shop } = req.body.Ref_Shop
+      console.log('on affiche le req  ', req);
+      const { Ref_Shop } = 's';
       const path = `./uploads/gallery/Produits/${Ref_Shop}`
       fs.mkdirSync(path, { recursive: true })
       cb(null, path)
