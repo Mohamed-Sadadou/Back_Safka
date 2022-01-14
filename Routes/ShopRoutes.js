@@ -2,6 +2,7 @@ const router = require('express').Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require("fs");
+var i=0;
 const Shop = require('../Controller/Shop.Controller')
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
@@ -16,7 +17,8 @@ const appDir = dirname(require.main.filename);
     //C:/Users/Sadadou Mohamed/Desktop/MASS/Safka/Back_Safka/upload
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-      console.log('on affiche le req  ', req);
+      
+      console.log('on affiche le req  multer ',i++, req);
       const { Ref_Shop } = 's';
       const path = `./uploads/gallery/Produits/${Ref_Shop}`
       fs.mkdirSync(path, { recursive: true })
