@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const multer = require('multer');
 const path = require('path');
+const fs = require("fs");
 const Shop = require('../Controller/Shop.Controller')
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
@@ -15,7 +16,10 @@ const appDir = dirname(require.main.filename);
     //C:/Users/Sadadou Mohamed/Desktop/MASS/Safka/Back_Safka/upload
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-         cb(null,appDir+"/upload");
+      const path = `./uploads/gallery/Prod/`+req.nody.Ref_Shop
+      fs.mkdirSync(path, { recursive: true })
+      cb(null, path)
+        
     },
     filename:function(req,file,cb){
          cb(null,createdate()+'-'+file.originalname);
