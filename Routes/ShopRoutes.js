@@ -20,7 +20,7 @@ const appDir = dirname(require.main.filename);
       
       console.log('on affiche le req  multer ',i++, req.body);
       const { nom } = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);;
-      const path = `./uploads/gallery/Produits/${Ref_Shop}`
+      const path = `./uploads/gallery/Produits/${nom}`
       fs.mkdirSync(path, { recursive: true })
       cb(null, path)
         
