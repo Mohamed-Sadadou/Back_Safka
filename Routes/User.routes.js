@@ -17,7 +17,9 @@ function createdate() {
     };
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-         cb(null,appDir+"/upload/PDP");
+      const path = `./uploads/gallery/PDP`
+      fs.mkdirSync(path, { recursive: true })
+      cb(null, path)
     },
     filename:function(req,file,cb){
          cb(null,createdate()+'-'+file.originalname);
