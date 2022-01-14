@@ -2,6 +2,8 @@ const router = require('express').Router();
 const UtilisateurController =  require('../Controller/Utilisateur.Controller');
 const Chek = require('../middleware/auth.middleware');
 const multer = require('multer');
+const { dirname } = require('path');
+const appDir = dirname(require.main.filename);
 //const TableauDeBord=require('../routes/TableauDeBord.routes');
 const ShopRoutes = require('./ShopRoutes');
 //cc 
@@ -15,7 +17,7 @@ function createdate() {
     };
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-         cb(null,__dirname+"/upload/PDP");
+         cb(null,appDir+"/upload/PDP");
     },
     filename:function(req,file,cb){
          cb(null,createdate()+'-'+file.originalname);

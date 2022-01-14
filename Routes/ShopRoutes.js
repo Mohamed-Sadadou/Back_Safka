@@ -2,7 +2,8 @@ const router = require('express').Router();
 const multer = require('multer');
 const path = require('path');
 const Shop = require('../Controller/Shop.Controller')
-
+const { dirname } = require('path');
+const appDir = dirname(require.main.filename);
    function createdate() {
     var date = Date.now();
     var d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
@@ -14,7 +15,7 @@ const Shop = require('../Controller/Shop.Controller')
     //C:/Users/Sadadou Mohamed/Desktop/MASS/Safka/Back_Safka/upload
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-         cb(null,__dirname+"/upload");
+         cb(null,appDir+"/upload");
     },
     filename:function(req,file,cb){
          cb(null,createdate()+'-'+file.originalname);
