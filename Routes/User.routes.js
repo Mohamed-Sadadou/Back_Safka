@@ -15,7 +15,7 @@ function createdate() {
     };
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-         cb(null,"../Back_Safka/upload/PDP");
+         cb(null,__dirname+"/upload/PDP");
     },
     filename:function(req,file,cb){
          cb(null,createdate()+'-'+file.originalname);

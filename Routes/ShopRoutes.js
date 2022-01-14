@@ -14,7 +14,7 @@ const Shop = require('../Controller/Shop.Controller')
     //C:/Users/Sadadou Mohamed/Desktop/MASS/Safka/Back_Safka/upload
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-         cb(null,"../Back_Safka/upload");
+         cb(null,__dirname+"/upload");
     },
     filename:function(req,file,cb){
          cb(null,createdate()+'-'+file.originalname);
