@@ -77,9 +77,11 @@ router.post("/GetMesCommandes",UtilisateurController.GetComandesClients);
 //------------- Afficher toutes les Commande ------------------------------------------
 //************************************* fonctionnalite de base Affichage user user ************************************************************/
 //************************************* pour renvoyer tout les utilisateurs *******************************************************************/
-router.get('/Compte/GetAllUsers',UtilisateurController.getAllUsers);
+router.get("/Compte/GetAllUsers",UtilisateurController.getAllUsers);
 //************************************* pour renvoyer un seul utilisateur *********************************************************************/
-router.get('/Compte',Chek.ChekUser, UtilisateurController.getUser);
+router.get("/Compte",Chek.ChekUser, UtilisateurController.getUser);
+// recherche
+router.post("/User",UtilisateurController.getUser2);
 //************************************* routes artisan ****************************************************************************************/
 router.use('/Shop',ShopRoutes);
 //*********************************************************************************************************************************************/

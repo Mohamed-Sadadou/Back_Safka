@@ -64,7 +64,7 @@ module.exports.AjoutProduit = async (req, res) => {
 module.exports.ModifiProduit = async (req, res) => {
     console.log(req.body.id);
     const queryObj = {};
-    queryObj[champs1] = camp1;
+    queryObj[req.body.champs] = req.body.new;
     try {
         await Product.findOneAndUpdate(
             { id_produit: req.body.id_produit },
@@ -248,4 +248,36 @@ module.exports.ModifieShopCategorie = (req, res) => {
 //***************************** Modifier ShopDescription ******************************/
 module.exports.ModifieShopDescription = (req, res) => {
     this.ModifCompteShop(req, res, 'ShopDescription');
+};
+//***************** afficher tout les utilisateurs ***************************************************************************/
+module.exports.getAllShops = async (req, res) => {
+    const users = await Shop.find();
+    res.status(200).json(users);
+};
+//***************** afficher un seul utilisateur *******************************************************************************/
+module.exports.getShopByID = (req, res) => {
+
+    const token = req.cookies.jwt;
+    const NumerP = req.cookies.IdP;
+    if (token) {
+        await Shop.findById(NumerP)
+            .then(Shop => {
+                if (!Shop) {
+                    return res.status(201).json({ error: 'Shop non trouvé !' });
+                }
+                res.status(200).json(docs);
+                
+            })
+            .catch(error => res.status(500).json({ error }));
+    } else {
+        console.log('mauvais token');
+        res.locals.user = null;
+        return res.status(404).json({ error: 'Utilisateur Non connecté ! ' });
+    }
+};
+module.exports.getShop = (req, res) => {
+    Shop.find({id_Shop:req.body.id_Shop}, (err, docs) => {
+        if (!err) res.status(200).json(docs);
+        else console.log(' on a un souci : ' + err);
+    });
 };

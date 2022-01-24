@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const ObjectId = require('mongoose').Types.ObjectId;
 const Commande = require('../Models/CommandeModel')
 const maxAge = 24 * 60 * 60 * 100;
-const CODE ='Token_secret_Safka';
+const CODE = 'Token_secret_Safka';
 const fs = require("fs");
 var path = require('path');
 var multer = require('multer');
@@ -20,7 +20,7 @@ var storage = multer.diskStorage({
     }
 });
 var upload = multer({ storage: storage });
-function CreateHeur(){
+function CreateHeur() {
     var date = Date.now();
     var h = new Date(date), Heur = '' + h.getHours(), Minute = '' + h.getMinutes(), seconde = h.getSeconds();
     console.log('--------------------------------')
@@ -28,7 +28,7 @@ function CreateHeur(){
     console.log('--------------------------------')
 
     console.log([Heur, Minute, seconde].join(':'))
-    
+
     console.log('--------------------------------')
     console.log('--------------------------------')
     console.log('--------------------------------')
@@ -38,7 +38,7 @@ function CreateHeur(){
 function createdate() {
     var date = Date.now();
     var d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
-  
+
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
     return [year, month, day].join('');
@@ -46,7 +46,7 @@ function createdate() {
 function createdate2() {
     var date = Date.now();
     var d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
-  
+
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
     return [year, month, day].join('/');
@@ -62,14 +62,14 @@ const CodifieCommande = () => {
 };
 //***************** creer un jeton adapté ************************************************************************************/
 const createToken = (id) => {
-    return jwt.sign({ userId: id },CODE , { expiresIn: maxAge })
+    return jwt.sign({ userId: id }, CODE, { expiresIn: maxAge })
 
 };
 //***************************** creer compte utilisateur Client par defaut ***************************************************/
 module.exports.CreeCompte = async (req, res) => {
     console.log('on affiche le req  ', req.body);
     console.log('on affiche le req  ', req.files);
-    
+
     Links = [];
     await req.files.forEach(function (y) {
         Links.push(y.path);
@@ -81,14 +81,16 @@ module.exports.CreeCompte = async (req, res) => {
     RoleU.role = role;
     RoleU.numerp = numerp;
     const id_client = CodifieIdClient();
-    const { mdp, UserName,numeroTel, email, adress } = req.body;
+
+    const { mdp, UserName, numeroTel, email, adress } = req.body;
+
     console.log('id_client : ', id_client, ' nomUtilisateur : ', UserName, ' mdp : ', mdp);
 
     bcrypt.hash(mdp, 10)
         .then(hash => {
             console.log('le mdp: ', hash);
             const user = new UserModel({
-                id_client,mdp:hash, UserName,numeroTel, email, adress, role: RoleU,Photos: Links
+                id_client, mdp: hash, UserName, numeroTel, email, adress, role: RoleU, Photos: Links
             });
             user.save()
                 .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
@@ -138,8 +140,8 @@ module.exports.CreeCompteShop = async (req, res) => {
         ShopAdress: req.body.ShopAdress,
         ShopCategorie: req.body.ShopCategorie,
         ShopDescription: req.body.ShopDescription,
-        statut:'En attente',
-        
+        statut: 'En attente',
+
     });
     console.log('on go save le shop ');
     Shop.save()
@@ -147,13 +149,13 @@ module.exports.CreeCompteShop = async (req, res) => {
             console.log('lid est : ', Shop._id);
             RoleU.role = 'Shop';
             RoleU.numerp = Shop._id;
-            const { mdp, UserName,numeroTel, email, adress } = req.body;
+            const { mdp, UserName, numeroTel, email, adress } = req.body;
             const id_client = CodifieIdClient();
             bcrypt.hash(mdp, 10)
                 .then(hash => {
                     console.log('le mdp: ', hash);
                     const user = new UserModel({
-                        id_client, mdp:hash, UserName,numeroTel, email, adress, role: RoleU
+                        id_client, mdp: hash, UserName, numeroTel, email, adress, role: RoleU
                     });
                     user.save()
                         .then(() => res.status(201).json({ message: 'Shop créé !' }))
@@ -181,7 +183,7 @@ module.exports.CreeCompteShopFromClient = async (req, res) => {
         ShopAdress: req.body.ShopAdress,
         ShopCategorie: req.body.ShopCategorie,
         ShopDescription: req.body.ShopDescription,
-        statut:'En attente',
+        statut: 'En attente',
     });
     console.log('on go save Shop ');
     Shop.save()
@@ -245,7 +247,7 @@ module.exports.Deconnection = (req, res) => {
     res.cookie('id_client', '', { maxAge: 1 });
     res.cookie('UserName', '', { maxAge: 1 });
     res.cookie('roles', '', { maxAge: 1 });
-    res.cookie('IdP','',{maxAge:1});
+    res.cookie('IdP', '', { maxAge: 1 });
 
     res.status(200).json('/');
 };
@@ -272,7 +274,7 @@ module.exports.RecupeDonneesShop = async function RecupeDonneesShop(req, res, ne
                     res.cookie('ShopCategorie', Shop.ShopCategorie, { httpOnly: true, maxAge });
                     res.cookie('ShopDescription', Shop.ShopDescription, { httpOnly: true, maxAge });
 
-                    res.status(200).json({ id_Shop: Shop.id_Shop, ShopName: Shop.ShopName, ShopAdress: Shop.ShopAdress, ShopNumeroTel: Shop.ShopNumeroTel, ShopEmail: Shop.ShopEmail, ShopCategorie: Shop.ShopCategorie, ShopDescription: Shop.ShopDescription, Statut:Shop.statut })
+                    res.status(200).json({ id_Shop: Shop.id_Shop, ShopName: Shop.ShopName, ShopAdress: Shop.ShopAdress, ShopNumeroTel: Shop.ShopNumeroTel, ShopEmail: Shop.ShopEmail, ShopCategorie: Shop.ShopCategorie, ShopDescription: Shop.ShopDescription, Statut: Shop.statut })
                 }
             })
             .catch(error => res.status(500).json({ error }));
@@ -290,7 +292,7 @@ module.exports.RecupDonneesClient = (req, res, next) => {
     console.log('on chek ce token :', token);
     console.log('on chek ce token :', role);
     if (token) {
-        jwt.verify(token,CODE, async (err, decodedToken) => {
+        jwt.verify(token, CODE, async (err, decodedToken) => {
             if (err) {
                 res.locals.user = null;
                 res.cookies('jwt', '', { maxAge: 1 });
@@ -357,6 +359,12 @@ module.exports.getUser = (req, res) => {
 
 
 };
+module.exports.getUser2 = (req, res) => {
+    UserModel.find({id_client:req.body.id_client}, (err, docs) => {
+        if (!err) res.status(200).json(docs);
+        else console.log(' on a un souci : ' + err);
+    }).select('-mdp');
+};
 //***************************************************************************** modification d utilisateur **********************************/
 //***************** modification du nom d'utilisateur **********/
 module.exports.ModifiUserName = async (req, res) => {
@@ -378,7 +386,7 @@ module.exports.ModifiUserName = async (req, res) => {
 //***************** modification du mot de passe   ***********/
 module.exports.ModifiUserpassword = async (req, res) => {
     console.log(req.body.id_client);
-    
+
     console.log('on fait le try de modifie password');
     const salt = await bcrypt.genSalt();
     req.body.mdp = await bcrypt.hash(req.body.mdp, salt);
@@ -488,13 +496,13 @@ module.exports.AjoutCommande = async (req, res) => {
     console.log('on affiche le req  ', req.body);
 
     const id_commande = CodifieCommande();
-    const DateCommande = createdate2()+"-"+CreateHeur();
+    const DateCommande = createdate2() + "-" + CreateHeur();
     const status = "En attente";
     console.log('id_commande : ', id_commande, ' DateCommande : ', DateCommande, ' status : ', status);
 
 
     const Com = new Commande({
-        id_Commande: id_commande, Client: req.body.Client, Date_Commande: DateCommande, Produits: req.body.Produits,TotalPayer:req.body.TotalPayer, Status: status
+        id_Commande: id_commande, Client: req.body.Client, Date_Commande: DateCommande, Produits: req.body.Produits, TotalPayer: req.body.TotalPayer, Status: status
     });
     Com.save()
         .then(() => res.status(201).json({ message: 'Commande créé !' }))
