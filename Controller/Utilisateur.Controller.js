@@ -157,12 +157,9 @@ module.exports.ModifiUserName = async (req, res) => {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
             { $set: { UserName: req.body.UserName } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
+            .catch((err)=>{return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -179,12 +176,9 @@ module.exports.ModifiUserpassword = async (req, res) => {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
             { $set: { mdp: req.body.mdp } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log('ok'); return res.status(200).json(docs); }
-                else return res.status(500).send({ message: err });
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
+            .catch((err)=>{return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -196,12 +190,9 @@ module.exports.ModifiUserMail = async (req, res) => {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
             { $set: { email: req.body.email } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
+            .catch((err)=>{return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -213,12 +204,9 @@ module.exports.ModifiProfilePic = async (req, res) => {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
             { $set: { adress: req.body.ProfilePic } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
+            .catch((err)=>{return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -229,12 +217,9 @@ module.exports.AddChallenge = async (req, res) => {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
             { $addToSet: { Challenges: req.body.IdChallenge } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
+            .catch((err)=>{return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -245,12 +230,9 @@ module.exports.EnleverChallenge = async (req, res) => {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
             { $pull: { Challenges:req.body.IdChallenge }  },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
+            .catch((err)=>{return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -262,12 +244,9 @@ module.exports.DoneChallenge = async (req, res) => {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
             { $set: { doneChal: true } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
+            .catch((err)=>{return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }

@@ -40,12 +40,9 @@ module.exports.SouvenirPublic = async (req, res) => {
         await Souvenir.findOneAndUpdate(
             { Id_Souvenir: req.body.Id_Souvenir },
             { $set: { Public: true } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true })
+            .then(()=>{ console.log("---- ok ----"); return res.status(200).json(docs); })
+            .catch((err)=>{return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -56,12 +53,9 @@ module.exports.SouvenirPrivate = async (req, res) => {
         await Souvenir.findOneAndUpdate(
             { Id_Souvenir: req.body.Id_Souvenir },
             { $set: { Public: false } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).then(()=>{ console.log("---- ok ----"); return res.status(200).json(docs); })
+        .catch((err)=>{ return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }

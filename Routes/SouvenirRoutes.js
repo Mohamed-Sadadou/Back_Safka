@@ -24,7 +24,7 @@ const Chek = require('../middleware/auth.middleware');
       
       
       const { nom } = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);;
-      const path = `./uploads/gallery/Produits`
+      const path = `./uploads/gallery/Souvenir`
       fs.mkdirSync(path, { recursive: true })
       cb(null, path)
         

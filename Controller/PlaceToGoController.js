@@ -1,11 +1,11 @@
 
 const PlaceToGO = require("../Models/PlaceToGo");
-
+const Localisation = require("../Models/Localisation");
 const CodifiIdPlace = () => {
     return ['Place', Math.floor(Math.random() * 10000)].join('_');
 };
 
-module.exports.AjoutPlaceToGo = async(req,res)=>{
+module.exports.AjoutPlaceToGo = async (req, res) => {
     Links = [];
     await req.files.forEach(function (y) {
         Links.push(y.path);
@@ -13,14 +13,14 @@ module.exports.AjoutPlaceToGo = async(req,res)=>{
 
     const ID_PlaceToGO = CodifiIdPlace();
     const {
-        Localisation,Description
+        Localisation, Description
     } = req.body;
 
 
-    const Place =  new PlaceToGO({
+    const Place = new PlaceToGO({
         ID_PlaceToGO,
         Localisation,
-        Images:Links,
+        Images: Links,
         Description,
     });
     Place.save()
@@ -28,17 +28,21 @@ module.exports.AjoutPlaceToGo = async(req,res)=>{
         .catch(error => res.status(400).json({ error }));
 };
 module.exports.ModifierLocalisation = async (req, res) => {
-
+    console.log("ca ",req.body)
+    const {
+        Langitude, Latitude
+    } = req.body;
+    let Local =
+    {
+        Langitude, Latitude
+    }
     try {
         await PlaceToGO.findOneAndUpdate(
             { ID_PlaceToGO: req.body.ID_PlaceToGO },
-            { $set: { Localisation: req.body.Localisation } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { $set: { Localisation: Local } },
+            { new: false, upsert: true, setDefaultsOnInsert: true }
+        ).then((docs)=> res.status(200).json({ message: 'modifié !' }))
+        .catch((err)=>console.log("---- erreur ----"))
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -49,18 +53,15 @@ module.exports.ModifierDescription = async (req, res) => {
         await PlaceToGO.findOneAndUpdate(
             { ID_PlaceToGO: req.body.ID_PlaceToGO },
             { $set: { Description: req.body.Description } },
-            { new: true, upsert: true, setDefaultsOnInsert: true },
-            (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
-                else { return res.status(500).send({ message: err }); }
-            }
-        )
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).then((docs)=>{ console.log("---- ok ----"); return res.status(200).json(docs);})
+        .catch((err)=>{return res.status(500).send({ message: err });})
     } catch (err) {
         return res.status(500).json({ message: err });
     }
 };
 module.exports.GetPlace = (req, res) => {
-    PlaceToGO.find({ID_PlaceToGO:req.body.ID_PlaceToGO}, (err, docs) => {
+    PlaceToGO.find({ ID_PlaceToGO: req.body.ID_PlaceToGO }, (err, docs) => {
         if (!err) res.status(200).json(docs);
         else console.log(' on a un souci : ' + err);
     });
