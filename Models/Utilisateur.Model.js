@@ -1,52 +1,51 @@
 const mongoose = require('mongoose');
-const UserRole = require("./RoleUser");
+//********************************************/
+const Localisation= require("./Localisation");
+const Challenge = require("./Challenge");
+const Image = require("./Image");
+//********************************************/
 const { isEmail } = require('validator');
 const bcrypt = require('bcryptjs');
-
+//********************************************/
 const UtilisateurSchema = new mongoose.Schema(
     {
-        id_client:{
-            type:String,
+        id_User: {
+            type: String,
             required: true,
             unique: true,
             trim: true
         },
-        mdp:{
-            type:String,
+        UserName: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        email: {
+            type: String,
+            required: true,
+            validate: [isEmail],
+            lowercase: true,
+            trim: true
+        },
+        mdp: {
+            type: String,
             required: true
         },
-        UserName:{
-            type:String,
-            required: true,
-            trim: true
+        Challenges:{
+            type:[mongoose.Schema.Types.ObjectID],
         },
-        numeroTel:{
-            type:String,
-            required: true,
-            trim: true
+        doneChal : Boolean,
+        ProfilePic : {
+            type:Image,
         },
-        email:{
-             type: String,
-             required:true,
-             validate: [isEmail],
-             lowercase: true,
-             trim:true
+        MissionsDone:{
+            type:[String],
         },
-        adress:{
-            type:String,
-            required: true,
-            trim: true
-        },
-        role:{
-            type:UserRole
-        },
-        Photos: {
-            type: [String]
-        },
+        
 
     }
 );
 
 
 
-module.exports = mongoose.model('Utilisateurs',UtilisateurSchema);
+module.exports = mongoose.model('Utilisateurs', UtilisateurSchema);
