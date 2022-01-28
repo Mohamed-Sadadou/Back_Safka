@@ -1,11 +1,9 @@
 const mongoose = require('mongoose');
 //********************************************/
-const Localisation= require("./Localisation");
-const Challenge = require("./Challenge");
-const Image = require("./Image");
+
 //********************************************/
 const { isEmail } = require('validator');
-const bcrypt = require('bcryptjs');
+
 //********************************************/
 const UtilisateurSchema = new mongoose.Schema(
     {
@@ -36,7 +34,7 @@ const UtilisateurSchema = new mongoose.Schema(
         },
         doneChal : Boolean,
         ProfilePic : {
-            type:String,
+            type:[String],
         },
         MissionsDone:{
             type:[String],

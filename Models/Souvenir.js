@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Image = require("./Image");
+
 const Souvenir =  new mongoose.Schema(
     {
         Id_Souvenir:{

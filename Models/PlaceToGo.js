@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Localisation= require("./Localisation");
-const Image = require("./Image");
+
 const PlaceToGO =  new mongoose.Schema(
     {
         ID_PlaceToGO:{
