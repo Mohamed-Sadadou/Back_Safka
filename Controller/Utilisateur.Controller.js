@@ -143,7 +143,7 @@ module.exports.GetCompteUser = (req, res) => {
 };
 module.exports.GetCompte = (req, res) => {
     UserModel.find({id_User:req.body.id_User}, (err, docs) => {
-        if (!err) {console.log("on a trouver !! "); res.status(200).json(docs);}
+        if (!err) {console.log("on a trouver !! "+docs); res.status(200).json(docs);}
         else console.log(' on a un souci : ' + err);
     }).select('-mdp');
 };
