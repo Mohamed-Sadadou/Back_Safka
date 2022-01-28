@@ -159,7 +159,7 @@ module.exports.ModifiUserName = async (req, res) => {
             { $set: { UserName: req.body.UserName } },
             { new: true, upsert: true, setDefaultsOnInsert: true },
             (err, docs) => {
-                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
+                if (!err) { console.log("---- ok ----"); return res.status(200); }
                 else { return res.status(500).send({ message: err }); }
             }
         )
