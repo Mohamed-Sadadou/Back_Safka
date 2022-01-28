@@ -36,7 +36,7 @@ const UtilisateurSchema = new mongoose.Schema(
         },
         doneChal : Boolean,
         ProfilePic : {
-            type:Image,
+            type:String,
         },
         MissionsDone:{
             type:[String],
