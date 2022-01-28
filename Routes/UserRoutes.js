@@ -32,7 +32,7 @@ const Chek = require('../middleware/auth.middleware');
         
     },
     filename:function(req,file,cb){
-         cb(null,createdate()+'_'+file.originalname);
+         cb(null,[createdate(), file.originalname].join(''));
     }
   });
   const fileFilter = (req, file, cb )=>{
