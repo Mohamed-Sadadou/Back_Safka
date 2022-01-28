@@ -142,8 +142,9 @@ module.exports.GetCompteUser = (req, res) => {
 
 };
 module.exports.GetCompte = (req, res) => {
-    console.log("on va chercher :"+req.body.id_User);
-    UserModel.findOne({id_User:req.body.id_User}, (err, docs) => {
+    console.log("On affiche le req : ",req.body);
+    console.log("on va chercher :"+req.body.id);
+    UserModel.findOne({id_User:req.body.id}, (err, docs) => {
         if (!err) {console.log("on a trouver !! "+docs.id_User); res.status(200).json(docs);}
         else console.log(' on a un souci : ' + err);
     }).select('-mdp');
