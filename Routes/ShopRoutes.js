@@ -22,8 +22,8 @@ const appDir = dirname(require.main.filename);
     destination:function(req,file,cb){
       
       console.log('on affiche le req  multer ',i++, req.body);
-      const { nom } = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);;
-      const path = `./uploads/gallery/Produits`
+     
+      const path = `./uploads/gallery/Produits`;
       fs.mkdirSync(path, { recursive: true })
       cb(null, path)
         
