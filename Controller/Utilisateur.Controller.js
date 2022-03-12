@@ -1,6 +1,7 @@
 const UserModel = require('../Models/Utilisateur.Model');
 const RoleU = require('../Models/RoleUser');
 const ShopModel = require('../Models/Shop');
+const Notation = require('../Models/Notation');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const ObjectId = require('mongoose').Types.ObjectId;
@@ -224,15 +225,39 @@ module.exports.SeConnecter = async function SeConnecter(req, res, next) {
 
                     const token = createToken(user._id);
                     const role = createToken(user.role.role);
+                    if (role == "Shop") {
+                        Shop.find({ id_Shop: user.role.numerp }, (err, docs) => {
+                            if (!err) {
+                                if (docs.statut == 'En attente') {
+                                    res.status(200).json({message:"le compte n'a pas encore été validé par les administrateurs"});
+                                } else {
+                                    console.log('le role : ', user.role.role);
+                                    console.log('CONNECTER');
+                                    res.cookie('jwt', token, { httpOnly: true, maxAge });
+                                    res.cookie('role', role, { httpOnly: true, maxAge });
+                                    res.cookie('id_client', (req.body.id_client).replace(/ /g, ""), { httpOnly: true, maxAge });
+                                    res.cookie('UserName', user.UserName, { httpOnly: true, maxAge });
+                                    res.cookie('IdP', user.role.numerp, { httpOnly: true, maxAge });
+                                    res.status(200).json({ user: user._id, role: user.role.role, id_client: req.body.id_client });
+                                }
+                                
+                            }
+                            else {
+                                console.log(' on a un souci : ' + err);
+                                res.status(500).json({message:"probleme de recherceh du shop correspendant"});
+                            }
+                        });
+                    } else {
+                        console.log('le role : ', user.role.role);
+                        console.log('CONNECTER');
+                        res.cookie('jwt', token, { httpOnly: true, maxAge });
+                        res.cookie('role', role, { httpOnly: true, maxAge });
+                        res.cookie('id_client', (req.body.id_client).replace(/ /g, ""), { httpOnly: true, maxAge });
+                        res.cookie('UserName', user.UserName, { httpOnly: true, maxAge });
+                        res.cookie('IdP', user.role.numerp, { httpOnly: true, maxAge });
+                        res.status(200).json({ user: user._id, role: user.role.role, id_client: req.body.id_client });
+                    }
 
-                    console.log('le role : ', user.role.role);
-                    console.log('CONNECTER');
-                    res.cookie('jwt', token, { httpOnly: true, maxAge });
-                    res.cookie('role', role, { httpOnly: true, maxAge });
-                    res.cookie('id_client', (req.body.id_client).replace(/ /g, ""), { httpOnly: true, maxAge });
-                    res.cookie('UserName', user.UserName, { httpOnly: true, maxAge });
-                    res.cookie('IdP', user.role.numerp, { httpOnly: true, maxAge });
-                    res.status(200).json({ user: user._id, role: user.role.role, id_client: req.body.id_client });
 
                 })
                 .catch(error => res.status(500).json({ error }));
@@ -360,7 +385,7 @@ module.exports.getUser = (req, res) => {
 
 };
 module.exports.getUser2 = (req, res) => {
-    UserModel.find({id_client:req.body.id_client}, (err, docs) => {
+    UserModel.find({ id_client: req.body.id_client }, (err, docs) => {
         if (!err) res.status(200).json(docs);
         else console.log(' on a un souci : ' + err);
     }).select('-mdp');
@@ -528,4 +553,240 @@ module.exports.getAllCommandes = async (req, res) => {
     const Commandes = await Commande.find();
     res.status(200).json(Commandes);
 };
+
+/********************************/
+module.exports.LikeProduit = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_client: req.body.id_client },
+            { $addToSet: { LikedProducts: req.body.Id_produit } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.DisLikeProduit = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_client: req.body.id_client },
+            { $pull: { LikedProducts: req.body.Id_produit } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.getLikedProducts = (req, res) => {
+    UserModel.find({ id_client: req.body.id_client }, (err, docs) => {
+        if (!err) res.status(200).json(docs.LikedProducts);
+        else console.log(' on a un souci : ' + err);
+    }).select('-mdp');
+};
+/********************************/
+module.exports.FollowShop = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_client: req.body.id_client },
+            { $addToSet: { ShopsFollowed: req.body.Id_Shops } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.UnFollowShop = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_client: req.body.id_client },
+            { $pull: { ShopsFollowed: req.body.Id_Shops } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.getFollowedShop = (req, res) => {
+    UserModel.find({ id_client: req.body.id_client }, (err, docs) => {
+        if (!err) res.status(200).json(docs.ShopsFollowed);
+        else console.log(' on a un souci : ' + err);
+    }).select('-mdp');
+};
+/********************************/
+module.exports.AddPreference = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_client: req.body.id_client },
+            { $addToSet: { Preferences: req.body.Preference } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.AddPreferences = async (req, res) => {
+    req.body.Preferences.forEach(item => {
+        try {
+            UserModel.findOneAndUpdate(
+                { id_client: req.body.id_client },
+                { $addToSet: { Preferences: item } },
+                { new: true, upsert: true, setDefaultsOnInsert: true },
+                (err, docs) => {
+                    if (!err) { console.log("---- ok ----"); }
+                    else { return res.status(500).send({ message: err }); }
+                }
+            )
+        } catch (err) {
+            return res.status(500).json({ message: err });
+        }
+    }).then(pref => { return res.status(200) })
+        .catch(err => {
+            return res.status(500).json({ message: err });
+        });
+    return res.status(200)
+
+};
+module.exports.RemovePreference = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_client: req.body.id_client },
+            { $pull: { Preferences: req.body.Preference } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.getPreferences = (req, res) => {
+    UserModel.find({ id_client: req.body.id_client }, (err, docs) => {
+        if (!err) res.status(200).json(docs.Preferences);
+        else console.log(' on a un souci : ' + err);
+    }).select('-mdp');
+};
+/******************************/
+module.exports.NoteProduit = (req, res) => {
+    console.log(req.body.id);
+    const Note = req.body.note;
+    const Auteur = req.body.client;
+    var somme = 0;
+    var notefinal;
+    Notation.Auteur = Auteur;
+    Notation.Note = Note;
+    try {
+      Product.findOneAndUpdate(
+            { id_produit: req.body.id_produit },
+            { $addToSet: { Notations: Notation } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) {
+                    console.log("---- ok nouvelle note ajouté ----");
+                    docs.Notations.forEach(note => {
+                        somme = somme + note.Note;
+                    }).then(e => {
+                        notefinal = somme / docs.Notations.length();
+                    })
+                    //********************************/
+                    try {
+                       Product.findOneAndUpdate(
+                            { id_produit: req.body.id_produit },
+                            { $set: { Notation: notefinal } },
+                            { new: true, upsert: true, setDefaultsOnInsert: true },
+                            (err, docs) => {
+                                if (!err) {
+                                    console.log("---- toutes les modifications ont été effectué avec succés ----");
+                                    return res.status(200).json(docs);
+                                }
+                                else { return res.status(500).send({ message: err }); }
+                            }
+                        )
+                    } catch (err) {
+                        return res.status(500).json({ message: err });
+                    }
+                    //*******************************/
+                }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.EnleverNoteProduit = (req, res) => {
+    console.log(req.body.id);
+
+    const Auteur = req.body.client;
+    var somme = 0;
+    var notefinal;
+
+    try {
+         Product.findOneAndUpdate(
+            { id_produit: req.body.id_produit },
+            { $pull: { 'Notations.Auteur': Auteur } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) {
+                    console.log("---- ok nouvelle note supprimer ----");
+                    docs.Notations.forEach(note => {
+                        somme = somme + note.Note;
+                    }).then(e => {
+                        if (docs.Notations.length() != 0) notefinal = somme / docs.Notations.length();
+                        else console.log("division par zero");
+                    })
+                    //********************************/
+                    try {
+                         Product.findOneAndUpdate(
+                            { id_produit: req.body.id_produit },
+                            { $set: { Notation: notefinal } },
+                            { new: true, upsert: true, setDefaultsOnInsert: true },
+                            (err, docs) => {
+                                if (!err) {
+                                    console.log("---- toutes les modifications ont été effectué avec succés ----");
+                                    return res.status(200).json(docs);
+                                }
+                                else { return res.status(500).send({ message: err }); }
+                            }
+                        )
+                    } catch (err) {
+                        return res.status(500).json({ message: err });
+                    }
+                    //*******************************/
+                }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.getNotesProduct = (req, res) => {
+    Product.findOne({ id_produit: req.body.id_produit }, (err, doc) => {
+        if (!err) res.send(doc.Notations);
+        else console.log(' on a un souci : ' + err);
+    });
+};
+
 

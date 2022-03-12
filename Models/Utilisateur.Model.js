@@ -43,6 +43,15 @@ const UtilisateurSchema = new mongoose.Schema(
         Photos: {
             type: [String]
         },
+        LikedProducts :{
+            type: [String]
+        },
+        ShopsFollowed:{
+            type: [String]
+        },
+        Preferences :{
+            type: [String]
+        },
 
     }
 );

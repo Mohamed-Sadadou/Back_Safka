@@ -52,25 +52,28 @@ const appDir = dirname(require.main.filename);
   
 
 
-router.get("/GetAllShops",Shop.getAllShops);
+router.get("/GetAllShops",Chek.chekAdmin,Shop.getAllShops);
 router.get("/GetShop",Shop.getShopByID);
 router.post("/GetShop",Shop.getShop);      
 
-router.post("/AjoutProduit",upload.array('img', 10), Shop.AjoutProduit);
+router.post("/AjoutProduit",upload.array('imgProduit', 5), Shop.AjoutProduit);
 router.post("/ModifierProduit", Shop.ModifiProduit);
 router.delete("/SupprimerProduit", Shop.SupprimeProduit);
 router.get("/GetAllProducts",Shop.getAllProducts);
+router.get("/GetAllProductsEnattente",Shop.getAllProductsNonValide);
 router.post("/GetProduct", Shop.getProduct);
 router.get("/GetProduitsShop", Shop.GetProduitsShop);
+router.get("/GetProduitsShopNonValide",Shop.GetProduitsShopNonValide);
+router.post("/ValiderProduit",Shop.ValiderProduit);
 
-router.get("/ValiderCommande", Shop.ValiderCommande);
-router.get("/RefuserCommande", Shop.RefuserCommande);
-router.get("/PayerCommande", Shop.PayerCommande);
+router.post("/ValiderCommande", Shop.ValiderCommande);
+router.post("/RefuserCommande", Shop.RefuserCommande);
+router.post("/PayerCommande", Shop.PayerCommande);
 router.post("/GetComandesShop", Shop.GetComandesShop);
 
-router.post("/ValiderCompteShop", Shop.ValiderCompteShop);
-router.post("/RefuserCompteShop", Shop.RefuserCompteShop);
-router.post("/ModifCompteShop", Shop.ModifCompteShop);
+router.post("/ValiderCompteShop",Chek.chekAdmin, Shop.ValiderCompteShop);
+router.post("/RefuserCompteShop",Chek.chekAdmin, Shop.RefuserCompteShop);
+
 
 router.post("/ModifieShopName", Shop.ModifieShopName);
 router.post("/ModifieShopNumeroTel", Shop.ModifieShopNumeroTel);
@@ -79,7 +82,9 @@ router.post("/ModifieShopAdress", Shop.ModifieShopAdress);
 router.post("/ModifieShopCategorie", Shop.ModifieShopCategorie);
 router.post("/ModifieShopDescription", Shop.ModifieShopCategorie);
 
-
+router.post("/NoteShop",Shop.NoteShop);
+router.post("/RemoveNoteShop",Shop.EnleverNoteShop);
+router.post("/GetNotesShop",Shop.getNotesShop);
 
 
 

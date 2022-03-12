@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const Notation = require('./Notation')
 
 
 const ProduitSchema = new mongoose.Schema(
@@ -15,12 +15,12 @@ const ProduitSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
-        Categorie:{
+        Categorie: {
             type: String,
             required: true
         },
-        SousCategorie:{
-               type:[String]
+        SousCategorie: {
+            type: [String]
         },
         Ref_Shop: {
             type: String,
@@ -36,7 +36,7 @@ const ProduitSchema = new mongoose.Schema(
         Stock: {
             type: Boolean
         },
-        Couleur:{
+        Couleur: {
             type: String,
             required: true,
         },
@@ -48,7 +48,16 @@ const ProduitSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
-        
+        statut: {
+            type: String,
+        },
+        Notation: {
+            type: Number,
+        },
+        Notations: {
+            type: [Notation],
+        },
+
     }
 );
 

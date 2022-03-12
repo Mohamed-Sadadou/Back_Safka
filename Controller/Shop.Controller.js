@@ -1,6 +1,7 @@
 const CommandeModel = require('../Models/CommandeModel');
-const Shop = require('../Models/Shop')
-const Product = require('../Models/ProduitModel')
+const Shop = require('../Models/Shop');
+const Product = require('../Models/ProduitModel');
+const Notation = require('../Models/Notation');
 const fs = require("fs");
 var path = require('path');
 
@@ -25,8 +26,6 @@ module.exports.AjoutProduit = async (req, res) => {
     await req.files.forEach(function (y) {
         Links.push(y.path);
     })
-
-
     const {
         nomProduit,
         Categorie,
@@ -50,6 +49,7 @@ module.exports.AjoutProduit = async (req, res) => {
         Prix,
         Photos: Links,
         Stock,
+        statuts:'en attente',
         Couleur,
         Quantite,
         Description
@@ -91,11 +91,13 @@ module.exports.SupprimeProduit = async (req, res) => {
 }
 //***************************** All Products ********************************************/
 module.exports.getAllProducts = async (req, res) => {
-    const Produit = await Product.find();
+    const Produit = await Product.find({statut:'valide'});
     res.status(200).json(Produit);
-
-
-}
+};
+module.exports.getAllProductsNonValide = async (req, res) => {
+    const Produit = await Product.find({statut:'en attente'});
+    res.status(200).json(Produit);
+};
 //***************************** get produit *********************************************/
 module.exports.getProductById = (req, res) => {
 
@@ -105,14 +107,67 @@ module.exports.getProductById = (req, res) => {
     });
 };
 module.exports.getProduct = (req, res) => {
-
-    Product.findOne({ id_produit: req.body.id_produit }, (err, doc) => {
+    const queryObj = {};
+    queryObj["id_produit"] = req.body.id_produit;
+    queryObj["statut"] = 'valide';
+    Product.findOne(queryObj, (err, doc) => {
         if (!err) res.send(doc);
         else console.log(' on a un souci : ' + err);
     });
 };
+module.exports.ValiderProduit = async (req,res) => {
+    const queryObj = {};
+    queryObj["statut"] = 'valide';
+    try {
+        await Product.findOneAndUpdate(
+            { id_produit: req.body.id_produit },
+            { $set: { queryObj } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) { console.log("---- ok ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+}
 //***************************** Recup Produit Shop ***********************************/
 module.exports.GetProduitsShop = async (req, res) => {
+    console.log('le req ', req.body);
+    const queryObj = {};
+    queryObj["statut"] = 'valide';
+    queryObj["Ref_Shop"] =  req.cookie.IdP;
+    try {
+        await Product.find(
+            queryObj,
+            (err, docs) => {
+                if (!err) { console.log("---- Voila ces Produits : ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.GetProduitsShopNonValide = async (req, res) => {
+    console.log('le req ', req.body);
+    const queryObj = {};
+    queryObj["statut"] = 'en attente';
+    queryObj["Ref_Shop"] =  req.cookie.IdP;
+    try {
+        await Product.find(
+            queryObj,
+            (err, docs) => {
+                if (!err) { console.log("---- Voila ces Produits : ----"); return res.status(200).json(docs); }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.GetAllProduitsShop = async (req, res) => {
     console.log('le req ', req.body)
     try {
         await Product.find(
@@ -126,10 +181,6 @@ module.exports.GetProduitsShop = async (req, res) => {
         return res.status(500).json({ message: err });
     }
 };
-
-
-
-
 //************************** SCRUD Commande **************************************************************************************************/
 //***************************** Modifier Commande ***************************************/
 module.exports.ModifCommande = async (req, res, status) => {
@@ -176,10 +227,6 @@ module.exports.GetComandesShop = async (req, res) => {
         return res.status(500).json({ message: err });
     };
 };
-
-
-
-
 //************************** SCRUD Compte *****************************************************************/
 //************************************************************************************/
 module.exports.ModifCompteShopValidation = async (req, res, status) => {
@@ -255,7 +302,7 @@ module.exports.getAllShops = async (req, res) => {
     res.status(200).json(users);
 };
 //***************** afficher un seul utilisateur *******************************************************************************/
-module.exports.getShopByID = (req, res) => {
+module.exports.getShopByID = async (req, res)  => {
 
     const token = req.cookies.jwt;
     const NumerP = req.cookies.IdP;
@@ -278,6 +325,108 @@ module.exports.getShopByID = (req, res) => {
 module.exports.getShop = (req, res) => {
     Shop.find({id_Shop:req.body.id_Shop}, (err, docs) => {
         if (!err) res.status(200).json(docs);
+        else console.log(' on a un souci : ' + err);
+    });
+};
+
+/********************************/
+module.exports.NoteShop = async (req, res) => {
+
+    const Note = req.body.note;
+    const Auteur = req.body.client;
+    var somme = 0;
+    var notefinal;
+    Notation.Auteur = Auteur;
+    Notation.Note = Note;
+    try {
+        await Shop.findOneAndUpdate(
+            { id_Shop: req.body.id_Shop },
+            { $addToSet: { Notations: Notation } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) {
+                    console.log("---- ok nouvelle note ajouté ----");
+                    docs.Notations.forEach(note => {
+                        somme = somme + note.Note;
+                    }).then(e => {
+                        notefinal = somme / docs.Notations.length();
+                    })
+                    //********************************/
+                    try {
+                         Shop.findOneAndUpdate(
+                            { id_Shop: req.body.id_Shop },
+                            { $set: { Notation: notefinal } },
+                            { new: true, upsert: true, setDefaultsOnInsert: true },
+                            (err, docs) => {
+                                if (!err) {
+                                    console.log("---- toutes les modifications ont été effectué avec succés ----");
+                                    return res.status(200).json(docs);
+                                }
+                                else { return res.status(500).send({ message: err }); }
+                            }
+                        )
+                    } catch (err) {
+                        return res.status(500).json({ message: err });
+                    }
+                    //*******************************/
+                }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.EnleverNoteShop = async (req, res) => {
+  
+
+    const Auteur = req.body.client;
+    var somme = 0;
+    var notefinal;
+
+    try {
+        await Shop.findOneAndUpdate(
+            { id_Shop: req.body.id_Shop },
+            { $pull: { 'Notations.Auteur': Auteur } },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+            (err, docs) => {
+                if (!err) {
+                    console.log("---- ok nouvelle note supprimer ----");
+                    docs.Notations.forEach(note => {
+                        somme = somme + note.Note;
+                    }).then(e => {
+                        if (docs.Notations.length() != 0) notefinal = somme / docs.Notations.length();
+                        else console.log("division par zero");
+                    })
+                    //********************************/
+                    try {
+                         Shop.findOneAndUpdate(
+                            { id_Shop: req.body.id_Shop },
+                            { $set: { Notation: notefinal } },
+                            { new: true, upsert: true, setDefaultsOnInsert: true },
+                            (err, docs) => {
+                                if (!err) {
+                                    console.log("---- toutes les modifications ont été effectué avec succés ----");
+                                    return res.status(200).json(docs);
+                                }
+                                else { return res.status(500).send({ message: err }); }
+                            }
+                        )
+                    } catch (err) {
+                        return res.status(500).json({ message: err });
+                    }
+                    //*******************************/
+                }
+                else { return res.status(500).send({ message: err }); }
+            }
+        )
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+};
+module.exports.getNotesShop = (req, res) => {
+    Shop.find({id_Shop:req.body.id_Shop}, (err, docs) => {
+        if (!err) res.status(200).json(docs.Notations);
         else console.log(' on a un souci : ' + err);
     });
 };

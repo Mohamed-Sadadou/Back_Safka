@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const UserRole = require("./RoleUser");
+const Notation = require("./Notation");
 const { isEmail } = require('validator');
 
 const ShopSchema = new mongoose.Schema(
@@ -39,6 +39,12 @@ const ShopSchema = new mongoose.Schema(
         statut:{
             type:String,
          },
+        Notation :{
+            type:Number,
+        },
+        Notations :{
+            type:[Notation], 
+        },
         
 
     }
