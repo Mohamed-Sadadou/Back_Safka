@@ -1,5 +1,5 @@
 const UserModel = require('../Models/Utilisateur.Model');
-
+const Challenge = require("../Models/Challenge");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const maxAge = 24 * 60 * 60 * 100;
@@ -11,7 +11,7 @@ function createdate() {
     var d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
     if (month.length < 2) month = '0' + month;
     if (day.length < 2) day = '0' + day;
-    return [year, month, day].join('');
+    return [day, month, year].join('/');
 };
 const CodifieId = () => {
     return ['User', createdate(), Math.floor(Math.random() * 1000000)].join('_');
@@ -27,25 +27,64 @@ module.exports.CreeCompte = async (req, res) => {
     console.log('on affiche le req  ', req.files);
 
     Links = [];
+    var hiss = [];
     await req.files.forEach(function (y) {
         Links.push(y.path);
     })
-
     const id_User = CodifieId();
     const doneChal = false;
-    const { UserName,email,mdp} = req.body;
-
+    const { UserName, email, mdp, Preferences } = req.body;
+    let str = {
+        Str: 1,
+        date: createdate(),
+    }
     console.log('UserName : ', UserName, ' email : ', email, ' mdp : ', mdp);
+    const his = {
+        HistoireID: "",
+        EtatAvancementHistoire: "0",
+        Chapitres: [],
+        Image:[],
+        Done: false
+    }
+    // recuperer l'histoire de base 
+    const hist = await Histoire.find({ TypeHistoire: "Histoire de base" });
+    hist.Chapitres.forEach(element => {
+        let chap = {
+            Chapitre: element.ID_Chapitre,
+            EtatAvancementChapitre: "0",
+            Image:element.Image,
+            Challenges: [],
+            Done: false,
+        }
+        element.Challenges.forEach(e => {
+            let chall = {
+                Id_Challengee: e.ID_Chapitre,
+                EtatAvancementChapitre: "0",
+                Image:e.Image,
+                Done: false,
+            }
+            chap.Challenges.push(chall);
 
+        })
+        his.Chapitres.push(chap);
+
+    })
+    his.Image=hist.Image;
+    hiss.push(his);
     bcrypt.hash(mdp, 10)
         .then(hash => {
             console.log('le mdp: ', hash);
-            const user = new UserModel({  
+            const user = new UserModel({
                 id_User,
                 UserName,
+                ProfilePic: Links,
                 email,
-                mdp: hash,
-                ProfilePic: Links
+                mdp,
+                Preferences,
+                Histoires: hiss,
+                Points: 0,
+                Streak: str,
+                Souvenirs: [],
             });
             user.save()
                 .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
@@ -66,7 +105,7 @@ module.exports.SeConnecter = async function SeConnecter(req, res, next) {
                     if (!valid) {
                         return res.status(202).json({ error: 'Mot de passe incorrect !' });
                     }
-                    const token = createToken(user._id);    
+                    const token = createToken(user._id);
                     console.log('CONNECTER');
                     res.cookie('jwt', token, { httpOnly: true, maxAge });
                     res.cookie('id_User', (req.body.id_User).replace(/ /g, ""), { httpOnly: true, maxAge });
@@ -99,7 +138,7 @@ module.exports.RecupDonneesUser = (req, res, next) => {
                 next();
                 res.status(201).json();
             } else {
-                res.status(200).json({ id: decodedToken.userId,id_User: req.cookies.id_User, UserName: req.cookies.UserName })  
+                res.status(200).json({ id: decodedToken.userId, id_User: req.cookies.id_User, UserName: req.cookies.UserName })
             }
         }
         )
@@ -142,10 +181,10 @@ module.exports.GetCompteUser = (req, res) => {
 
 };
 module.exports.GetCompte = (req, res) => {
-    console.log("On affiche le req : ",req.body);
-    console.log("on va chercher :"+req.body.id);
-    UserModel.findOne({id_User:req.body.id}, (err, docs) => {
-        if (!err) {console.log("on a trouver !! "+docs.id_User); res.status(200).json(docs);}
+    console.log("On affiche le req : ", req.body);
+    console.log("on va chercher :" + req.body.id);
+    UserModel.findOne({ id_User: req.body.id }, (err, docs) => {
+        if (!err) { console.log("on a trouver !! " + docs.id_User); res.status(200).json(docs); }
         else console.log(' on a un souci : ' + err);
     }).select('-mdp');
 };
@@ -158,8 +197,8 @@ module.exports.ModifiUserName = async (req, res) => {
             { id_User: req.body.id_User },
             { $set: { UserName: req.body.UserName } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
-            .catch((err)=>{return res.status(500).send({ message: err }); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -177,8 +216,8 @@ module.exports.ModifiUserpassword = async (req, res) => {
             { id_User: req.body.id_User },
             { $set: { mdp: req.body.mdp } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
-            .catch((err)=>{return res.status(500).send({ message: err }); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -191,8 +230,8 @@ module.exports.ModifiUserMail = async (req, res) => {
             { id_User: req.body.id_User },
             { $set: { email: req.body.email } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
-            .catch((err)=>{return res.status(500).send({ message: err }); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -203,50 +242,145 @@ module.exports.ModifiProfilePic = async (req, res) => {
     try {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
-            { $set: { adress: req.body.ProfilePic } },
+            { $set: { ProfilePic: req.body.ProfilePic } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
-            .catch((err)=>{return res.status(500).send({ message: err }); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
 }
 //***************** modification ajout d'un challenge a l'utilisateur **********/
-module.exports.AddChallenge = async (req, res) => {
+module.exports.AddHistoire = async (req, res) => {
+    let OBJ = {
+        HistoireID: req.body.IdHistoire,
+        EtatAvancementHistoire: '0',
+        Done: false,
+    }
     try {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
-            { $addToSet: { Challenges: req.body.IdChallenge } },
+            { $addToSet: { Histoires: req.body.OBJ } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
-            .catch((err)=>{return res.status(500).send({ message: err }); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
 }
 //***************** modification suppression d'un challenge a l'utilisateur **********/
-module.exports.EnleverChallenge = async (req, res) => {
+module.exports.EnleverHistoire = async (req, res) => {
     try {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
-            { $pull: { Challenges:req.body.IdChallenge }  },
+            {
+                $pull: {
+                    Histoires: {
+                        HistoireID: req.body.HistoireID
+                    }
+                }
+            },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
-            .catch((err)=>{return res.status(500).send({ message: err }); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
 }
-//***************** done challenge **********/
-module.exports.DoneChallenge = async (req, res) => {
+module.exports.AddPreference = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_User: req.body.id_User },
+            { $addToSet: { Preferences: req.body.Preference } },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+}
+module.exports.EnleverPreference = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_User: req.body.id_User },
+            { $pull: { Preferences: req.body.Preference } },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+}
+module.exports.ModiferPreference = async (req, res) => {
 
     try {
         await UserModel.findOneAndUpdate(
             { id_User: req.body.id_User },
-            { $set: { doneChal: true } },
+            { $set: { Preferences: req.body.Preferences } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-            ).then((docs)=>{ console.log("---- ok ----"); return res.status(200);})
-            .catch((err)=>{return res.status(500).send({ message: err }); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+}
+module.exports.ModifierPoints = async (req, res) => {
+
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_User: req.body.id_User },
+            { $set: { Points: req.body.Points } },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+}
+module.exports.ModifierStreak = async (req, res) => {
+
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_User: req.body.id_User },
+            { $set: { Streak: req.body.Streak } },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+            .catch((err) => { return res.status(500).send({ message: err }); })
+    } catch (err) {
+        return res.status(500).json({ message: err });
+    }
+}
+module.exports.AjoutSouvenir = async (req, res) => {
+    try {
+        await UserModel.findOneAndUpdate(
+            { id_User: req.body.id_User },
+            { $addToSet: { Souvenirs: req.body.Souvenirs } },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).then(async (docs) => {
+            let story = {
+                Auteur: docs.UserName,
+                Image: docs.Souvenirs.Image,
+            }
+            if (req.body.Souvenirs.public) {
+                // il faut ajouter aux stories si c'est public
+                await Challenge.findOneAndUpdate(
+                    { Id_Challenge: docs.Souvenirs.Challenge },
+                    { $addToSet: { Stories: story } },
+                    { new: true, upsert: true, setDefaultsOnInsert: true }
+                ).then(async (docs) => {
+                    console.log("---- ok ----");
+                    return res.status(200);
+
+                })
+                    .catch((err) => { return res.status(500).send({ message: err }); })
+            } else {
+                console.log("---- ok ----");
+                return res.status(200);
+            }
+
+
+        })
+            .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
     }
@@ -254,7 +388,7 @@ module.exports.DoneChallenge = async (req, res) => {
 //***************** supprimer utilisateur  *****/
 module.exports.SupprimeUser = async (req, res) => {
     try {
-        
+
         await UserModel.remove({ id_client: req.body.id_client }).exec();
         res.status(200).json({ message: "Suppression effectuer avec succes. " });
     } catch (err) {

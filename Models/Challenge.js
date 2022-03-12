@@ -1,15 +1,33 @@
 const mongoose = require('mongoose');
-const Mission = require("./Mission");
+const Storie = require('./Storie');
 const Challenge =  new mongoose.Schema(
     {
         Id_Challenge:{
             type:String
         },
-        Missions:{
-            type:[Mission],
-        },
-        Day:{
+        Titre:{
             type:String,
+        },
+        Theme:{
+            type:String,
+        },
+        Description:{
+            type:String,
+        },
+        Image:{
+            type:String,
+        },
+        Point:{
+            type:Number,
+        },
+        Stories:{
+            type:[Storie],
+        },
+        Type:{
+            type:String,
+        },
+        PlaceToGo:{
+            type:mongoose.Schema.Types.ObjectID,
         },
     }
 );

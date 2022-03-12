@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 //********************************************/
-
+const HistoireShema = require("./HistoireShema");
+const Souvenir = require("./Souvenir");
 //********************************************/
 const { isEmail } = require('validator');
 
@@ -18,6 +19,9 @@ const UtilisateurSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
+        ProfilePic : {
+            type:[String],
+        },
         email: {
             type: String,
             required: true,
@@ -29,16 +33,25 @@ const UtilisateurSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        Challenges:{
-            type:[mongoose.Schema.Types.ObjectID],
+        Preferences:{
+             type:[String],
         },
-        doneChal : Boolean,
-        ProfilePic : {
-            type:[String],
+        Histoires:{
+            type:[HistoireShema],
         },
-        MissionsDone:{
-            type:[String],
+        Points:{
+            type : Number ,
         },
+        Streak:{
+            type : {
+                Str : Number,
+                date:String,
+            },
+        },
+        Souvenirs:{
+            type:[Souvenir],
+        },
+
         
 
     }

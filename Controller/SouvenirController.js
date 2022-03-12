@@ -13,7 +13,8 @@ module.exports.AjoutSouvenir = async(req,res)=>{
     });
 
     const Id_Souvenir = CodifiIdSouvenir();
-    const Public = req.body.Public
+    const Public = req.body.Public;
+    const challenge =  req.body.challenge;
 
 
     const souvenir =  new Souvenir({

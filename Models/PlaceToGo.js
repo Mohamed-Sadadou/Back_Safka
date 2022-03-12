@@ -1,20 +1,23 @@
 const mongoose = require('mongoose');
-const Localisation= require("./Localisation");
+const Localisation = require("./Localisation");
 
-const PlaceToGO =  new mongoose.Schema(
+const PlaceToGO = new mongoose.Schema(
     {
-        ID_PlaceToGO:{
-            type:String
+        ID_PlaceToGO: {
+            type: String
         },
         Localisation: {
-            type:Localisation,
+            type: Localisation,
         },
-        Images:{
-            type : [String],
+        Images: {
+            type: [String],
         },
         Description: {
             type: String,
-        }
+        },
+        Categorie: {
+            type: String,
+        },
     }
 );
 module.exports = mongoose.model('PlaceToGO', PlaceToGO);

@@ -8,6 +8,9 @@ const Souvenir =  new mongoose.Schema(
         Image:{
             type:String,
         },
+        Challenge: {
+            type:String,
+        },
         Public:Boolean,
         
     }

@@ -5,6 +5,7 @@ const fs = require("fs");
 //*********************************************************/
 const Challenge = require("../Routes/ChallengeRoutes");
 const Mission = require("../Routes/MissionRoutes");
+const Histoire =  require("../Routes/HistoireRoutes");
 const PlaceToGo = require("../Routes/PlaceToGoRoutes");
 const Souvenir = require("../Routes/SouvenirRoutes");
 //*********************************************************/
@@ -73,19 +74,28 @@ router.post("/Compte/ModifierMailUtilisateur",Chek.ChekUser,UtilisateurControlle
 //------------- pour modifier password ------------------------------------------------
 router.post("/Compte/Modifierpassword",Chek.ChekUser,UtilisateurController.ModifiUserpassword);
 //------------- -----------------------------------------------------------------------
-router.post("/Compte/AjoutChallenge",Chek.ChekUser,UtilisateurController.AddChallenge);
+router.post("/Compte/AjoutHistoire",Chek.ChekUser,UtilisateurController.AddHistoire);
 //------------- -----------------------------------------------------------------------
-router.post("/Compte/EnleverChallenge",Chek.ChekUser,UtilisateurController.EnleverChallenge);
+router.post("/Compte/EnleverHistoire",Chek.ChekUser,UtilisateurController.EnleverHistoire);
 //------------- pour modifier Image d'utilisateur ------------------------------------
 router.post("/Compte/ModifierImageUtilisateur",Chek.ChekUser,UtilisateurController.ModifiProfilePic);
 //------------------------------------------------------------------
-router.post("/Compte/DoneChallenge",UtilisateurController.DoneChallenge)
+//------------- pour modifier les preferences ------------------------------------
+router.post("/Compte/AjoutPreference",Chek.ChekUser,UtilisateurController.AddPreference);
+router.post("/Compte/EnleverPreference",Chek.ChekUser,UtilisateurController.EnleverPreference);
+router.post("/Compte/ModiferPreference",Chek.ChekUser,UtilisateurController.ModiferPreference);
+router.post("/compte/ModifierPoints",UtilisateurController.ModifierPoints);
+router.post("/compte/ModifierStreak",UtilisateurController.ModifierStreak);
+router.post("/compte/AjoutSouvenir",UtilisateurController.AjoutSouvenir);
+//------------------------------------------------------------------
+
 //*********************************************************************************************************************************************/
 
 router.use('/Challenge',Challenge);
-router.use('/Mission',Mission);
+//router.use('/Mission',Mission);
 router.use('/PlaceToGo',PlaceToGo);
 router.use('/Souvenir',Souvenir);
+router.use('/Histoire')
 
 
 module.exports = router;

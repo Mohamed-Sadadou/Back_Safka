@@ -13,7 +13,7 @@ module.exports.AjoutPlaceToGo = async (req, res) => {
 
     const ID_PlaceToGO = CodifiIdPlace();
     const {
-        Localisation, Description
+        Localisation, Description, Categorie
     } = req.body;
 
 
@@ -22,6 +22,7 @@ module.exports.AjoutPlaceToGo = async (req, res) => {
         Localisation,
         Images: Links,
         Description,
+        Categorie
     });
     Place.save()
         .then(() => res.status(201).json({ message: 'Place créé !' }))
