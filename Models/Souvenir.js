@@ -15,5 +15,5 @@ const Souvenir =  new mongoose.Schema(
         
     }
 );
-module.exports = mongoose.model('Souvenir', Souvenir);
-//module.exports = Souvenir;
+//module.exports = mongoose.model('Souvenir', Souvenir);
+module.exports = Souvenir;

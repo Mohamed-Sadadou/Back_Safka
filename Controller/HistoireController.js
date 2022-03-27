@@ -1,6 +1,6 @@
 const Challenge = require("../Models/Challenge");
 const Histoire = require("../Models/Histoire");
-
+const Chapitre = require("../Models/Chapitre");
 function createdate() {
     var date = Date.now();
     var d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
@@ -11,8 +11,11 @@ function createdate() {
 const CodifiIdHistoire = () => {
     return ['Histoire', createdate(), Math.floor(Math.random() * 100)].join('_');
 };
+const CodifiIdChapitre = () => {
+    return ['Chapitre', createdate(), Math.floor(Math.random() * 100)].join('_');
+};
 
-//
+//TESTED
 module.exports.CreateHistoire = async (req, res) => {
     console.log('on affiche le req  ', req.body);
     console.log('on affiche le req  ', req.files);
@@ -22,44 +25,75 @@ module.exports.CreateHistoire = async (req, res) => {
         Links.push(y.path);
     })
     const IdHistoire = CodifiIdHistoire();
-    const { 
+    const {
         Titre,
         Description,
-        Chapitres,
         TypeHistoire,
         Longuer,
         Points,
-        Nbr_Users,
     } = req.body;
 
     const his = new Histoire({
         IdHistoire,
         Titre,
         Description,
-        Image:Links,
-        Chapitres,
+        Image: Links,
         TypeHistoire,
         Longuer,
         Points,
-        Nbr_Users,
+        Nbr_Users: 0,
     });
-    
+
     his.save()
         .then(() => res.status(201).json({ message: 'Histoire créé !' }))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => res.status(400).json({ message: error }));
 
 
 };
+//TESTED
 module.exports.GetAllHistoire = async (req, res) => {
-    const his = await Histoire.find().sort({TypeHistoire:1});
+    
+    const his = await Histoire.find().populate('Chapitres.Challenges').sort({ TypeHistoire: 1 });
     res.status(200).json(his);
+    
+/*
+    await Histoire.aggregate([
+        {$lookup: {
+            "from": "Challenge",
+            "let": {"Challenges": "$Id_Challenge"},
+            pipeline: [
+              {
+                "$match": {
+                  "$expr": {
+                    "$in": ["$$userId", "$users.uId"],  
+                  },
+                },
+              },
+            ],
+            as: "details"
+          }}, {
+            $lookup: {
+                from: "utilisateurschemas",
+                localField: "Etudiant2",
+                foreignField: "_id",
+                as: "etudiant2"
+            }
+        }
+    ]).then(users => {
+        console.log(users);
+        res.status(200).json(users);
+    }).catch();
+*/
 };
+//TESTED
 module.exports.GetHistoire = (req, res) => {
     Histoire.find({ IdHistoire: req.body.IdHistoire }, (err, docs) => {
         if (!err) res.status(200).json(docs);
         else console.log(' on a un souci : ' + err);
-    }).sort({TypeHistoire:1});
+    }).sort({ TypeHistoire: 1 });
 };
+
+
 module.exports.ModifiTitreHistoire = async (req, res) => {
 
     try {
@@ -67,7 +101,7 @@ module.exports.ModifiTitreHistoire = async (req, res) => {
             { IdHistoire: req.body.IdHistoire },
             { $set: { Titre: req.body.Titre } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200).json({ message: "modification effectuer avec succés" }); })
             .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
@@ -80,7 +114,7 @@ module.exports.ModifiDescriptionHistoire = async (req, res) => {
             { IdHistoire: req.body.IdHistoire },
             { $set: { Description: req.body.Description } },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-        ).then((docs) => { console.log("---- ok ----"); return res.status(200); })
+        ).then((docs) => { console.log("---- ok ----"); return res.status(200).json({ message: "modification effectuer avec succés" }); })
             .catch((err) => { return res.status(500).send({ message: err }); })
     } catch (err) {
         return res.status(500).json({ message: err });
@@ -89,10 +123,30 @@ module.exports.ModifiDescriptionHistoire = async (req, res) => {
 
 //***** Chapitre modif ******/
 module.exports.AjoutChapitreHistoire = async (req, res) => {
+
+    Links = [];
+    await req.files.forEach(function (y) {
+        Links.push(y.path);
+    })
+
+    const {
+        Titre,
+        Theme,
+        Description,
+    } = req.body;
+
+    let chap = {
+        ID_Chapitre: CodifiIdChapitre(),
+        Titre,
+        Theme,
+        Image: Links,
+        Description,
+        Challenges: [],
+    }
+
     Histoire.findOneAndUpdate(
         { IdHistoire: req.body.IdHistoire },
-        { $addToSet: { "Chapitres.$[element]": req.body.Chapitre } },
-        { arrayFilters: [{ "element.ID_Chapitre": req.body.ID_Chapitre }], upsert: true },
+        { $addToSet: { Chapitres: chap } },
         (err, docs) => {
             if (!err) {
                 console.log('pas derreur');
@@ -105,6 +159,31 @@ module.exports.AjoutChapitreHistoire = async (req, res) => {
         }
     )
 };
+//*************************/
+module.exports.EnleverChapitreHistoire = async (req, res) => {
+    Histoire.findOneAndUpdate(
+        { IdHistoire: req.body.IdHistoire },
+        {
+            $pull: {
+                Chapitres: {
+                    ID_Chapitre: req.body.ID_Chapitre
+                }
+            }
+        },
+
+        (err, docs) => {
+            if (!err) {
+                console.log('pas derreur');
+                return res.status(200).json({ message: ' Modification du chapitre effectuer ' });
+
+            } else {
+                console.log('erreur de mise a jour : ', err);
+                return res.status(202).send({ error: err });
+            }
+        }
+    )
+};
+//*************************/
 module.exports.ModifiChapitreTitreHistoire = async (req, res) => {
     Histoire.findOneAndUpdate(
         { IdHistoire: req.body.IdHistoire },
@@ -139,6 +218,10 @@ module.exports.ModifiChapitreThemeHistoire = async (req, res) => {
         }
     )
 };
+
+// la modification des images implique quelques trucs sur le serveurs pour supprimer les anciennes images 
+
+/*
 module.exports.ModifiChapitreImageHistoire = async (req, res) => {
     Histoire.findOneAndUpdate(
         { IdHistoire: req.body.IdHistoire },
@@ -156,6 +239,7 @@ module.exports.ModifiChapitreImageHistoire = async (req, res) => {
         }
     )
 };
+*/
 module.exports.ModifiChapitreDescriptionHistoire = async (req, res) => {
     Histoire.findOneAndUpdate(
         { IdHistoire: req.body.IdHistoire },
@@ -176,8 +260,8 @@ module.exports.ModifiChapitreDescriptionHistoire = async (req, res) => {
 module.exports.ModifiChapitreAjoutChallengesHistoire = async (req, res) => {
     Histoire.findOneAndUpdate(
         { IdHistoire: req.body.IdHistoire },
-        { $addToSet: { "Chapitres.$[element].Challenges.$[elem]": req.body.NewChallenge } },
-        { arrayFilters: [{ "element.ID_Chapitre": req.body.ID_Chapitre },{"elem":req.body.OldChallenge}], upsert: true },
+        { $addToSet: { "Chapitres.$[element].Challenges": req.body.NewChallenge } },
+        { arrayFilters: [{ "element.ID_Chapitre": req.body.ID_Chapitre }], upsert: true },
         (err, docs) => {
             if (!err) {
                 console.log('pas derreur');

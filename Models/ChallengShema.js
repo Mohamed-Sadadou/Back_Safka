@@ -12,5 +12,5 @@ const Challenge =  new mongoose.Schema(
         Done:Boolean,
     }
 );
-module.exports = mongoose.model('Challenge', Challenge);
-//module.exports = Challenge;
+//module.exports = mongoose.model('Challenge', Challenge);
+module.exports = Challenge;

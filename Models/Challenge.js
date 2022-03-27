@@ -15,7 +15,7 @@ const Challenge =  new mongoose.Schema(
             type:String,
         },
         Image:{
-            type:String,
+            type:[String],
         },
         Point:{
             type:Number,
@@ -27,7 +27,7 @@ const Challenge =  new mongoose.Schema(
             type:String,
         },
         PlaceToGo:{
-            type:mongoose.Schema.Types.ObjectID,
+            type:String,
         },
     }
 );

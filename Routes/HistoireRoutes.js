@@ -5,7 +5,7 @@ const fs = require("fs");
 //*********************************************************/
 
 //*********************************************************/
-const UtilisateurController = require('../Controller/Utilisateur.Controller')
+const HistoireController = require('../Controller/HistoireController');
 const Chek = require('../middleware/auth.middleware');
 //*********************************************************/
 
@@ -19,10 +19,8 @@ const Chek = require('../middleware/auth.middleware');
     };
   const storage = multer.diskStorage({
     destination:function(req,file,cb){
-      
-      
-      const { nom } = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);;
-      const path = `./upload/PDP`
+    
+      const path = `./upload/Histoire`
       fs.mkdirSync(path, { recursive: true })
       cb(null, path)
         
@@ -48,13 +46,64 @@ const Chek = require('../middleware/auth.middleware');
     },
     fileFilter:fileFilter
   });
+
+  const storage2 = multer.diskStorage({
+    destination:function(req,file,cb){
+    
+      const path = `./upload/Chapitres`
+      fs.mkdirSync(path, { recursive: true })
+      cb(null, path)
+        
+    },
+    filename:function(req,file,cb){
+         cb(null,[createdate(), file.originalname].join(''));
+    }
+  });
+  const fileFilter2 = (req, file, cb )=>{
+  
+    if(file.mimetype ==='image/jpeg' || file.mimetype ==='image/png'){
+      cb(null,true);
+    }else{
+      cb(new Error('Format non supporter'),false);
+    }
+  
+  
+  };
+  const upload2 = multer({
+    storage : storage2,
+    limits:{
+      fileSize: 1024*1024*5
+    },
+    fileFilter:fileFilter
+  });
   
 
 //------------- compte client ---------------------------------------------------
-router.post("/CreeCompte",upload.array('img', 1),UtilisateurController.CreeCompte);
-router.post("/CompteUser",UtilisateurController.GetCompte);
-router.get("/GetCompte",UtilisateurController.GetCompteUser);
-router.get("/GetAllUsers",UtilisateurController.GetAllUsers);
-router.get("/GetDonneesUser",UtilisateurController.RecupDonneesUser)
+//TESTED
+router.post("/CreateHistoire",upload.array('img', 1),HistoireController.CreateHistoire);
+//TESTED
+router.post("/GetHistoire",HistoireController.GetHistoire);
+//TESTED
+router.get("/GetAllHistoire",HistoireController.GetAllHistoire);
+//TESTED
+router.post("/ModifiTitreHistoire",HistoireController.ModifiTitreHistoire);
+//TESTED
+router.post("/ModifiDescriptionHistoire",HistoireController.ModifiDescriptionHistoire);
+//
+router.post("/SupprimeHistoire",HistoireController.SupprimeHistoire);
+//*********************Chapitres**************************/
+//TESTED
+router.post("/AjoutChapitre",upload2.array('img', 1),HistoireController.AjoutChapitreHistoire);
+//TESTED
+router.post("/ModifiChapitreTitreHistoire",HistoireController.ModifiChapitreTitreHistoire);
+//TESTED
+router.post("/ModifiChapitreThemeHistoire",HistoireController.ModifiChapitreThemeHistoire);
+//TESTED
+router.post("/ModifiChapitreDescriptionHistoire",HistoireController.ModifiChapitreDescriptionHistoire);
+//
+//*********************Challenges*************************/
+//
+router.post("/ModifiChapitreAjoutChallengesHistoire",HistoireController.ModifiChapitreAjoutChallengesHistoire);
+//
 
 module.exports = router;

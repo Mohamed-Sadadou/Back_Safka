@@ -4,7 +4,7 @@ const multer = require('multer');
 const fs = require("fs");
 //*********************************************************/
 const Challenge = require("../Routes/ChallengeRoutes");
-const Mission = require("../Routes/MissionRoutes");
+
 const Histoire =  require("../Routes/HistoireRoutes");
 const PlaceToGo = require("../Routes/PlaceToGoRoutes");
 const Souvenir = require("../Routes/SouvenirRoutes");
@@ -60,7 +60,7 @@ router.post("/CreeCompte",upload.array('img', 1),UtilisateurController.CreeCompt
 router.post("/CompteUser",UtilisateurController.GetCompte);
 router.get("/GetCompte",UtilisateurController.GetCompteUser);
 router.get("/GetAllUsers",UtilisateurController.GetAllUsers);
-router.get("/GetDonneesUser",UtilisateurController.RecupDonneesUser)
+router.get("/GetDonneesUser",UtilisateurController.RecupDonneesUser);
 //************************************* Les fonctionnalite de base de connection **************************************************************/
 //------------- pour se connecter -----------------------------------------------------
 router.post("/Connection",UtilisateurController.SeConnecter);
@@ -92,10 +92,9 @@ router.post("/compte/AjoutSouvenir",UtilisateurController.AjoutSouvenir);
 //*********************************************************************************************************************************************/
 
 router.use('/Challenge',Challenge);
-//router.use('/Mission',Mission);
 router.use('/PlaceToGo',PlaceToGo);
 router.use('/Souvenir',Souvenir);
-router.use('/Histoire')
+router.use('/Histoire',Histoire);
 
 
 module.exports = router;
