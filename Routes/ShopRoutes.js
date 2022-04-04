@@ -23,7 +23,7 @@ const appDir = dirname(require.main.filename);
       
       console.log('on affiche le req  multer ',i++, req.body);
      
-      const path = `./uploads/gallery/Produits`;
+      const path = `./upload/Produits`;
       fs.mkdirSync(path, { recursive: true })
       cb(null, path)
         
