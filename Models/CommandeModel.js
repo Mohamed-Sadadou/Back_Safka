@@ -18,7 +18,7 @@ const CommandeSchema = new mongoose.Schema(
         },
         Shop:{
             type: String,
-            required: true,
+           
         },
         TotalPayer:{
             type: String,
